@@ -1,0 +1,75 @@
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+
+body { background: #1a1a2e; color: #e2e8f0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+#topbar {
+  background: #16213e;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border-bottom: 1px solid #0f3460;
+  flex-shrink: 0;
+}
+#topbar h1 { font-size: 15px; font-weight: 600; color: #e2e8f0; }
+
+#breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #94a3b8; margin-right: auto; }
+.bc-item { cursor: pointer; padding: 3px 8px; border-radius: 4px; transition: background 0.15s; }
+.bc-item:hover { background: #1e293b; color: #e2e8f0; }
+.bc-item.active { color: #60a5fa; font-weight: 500; }
+.bc-sep { color: #475569; }
+
+#filters { display: flex; gap: 6px; }
+.fbtn { font-size: 11px; padding: 5px 10px; border-radius: 999px; border: 1px solid #334155; background: #1e293b; color: #94a3b8; cursor: pointer; transition: all .2s; }
+.fbtn:hover { background: #334155; }
+.fbtn.active-all { background: #334155; color: #e2e8f0; border-color: #64748b; }
+.fbtn.active-red { background: #450a0a; color: #fca5a5; border-color: #ef4444; }
+.fbtn.active-yellow { background: #451a03; color: #fcd34d; border-color: #f59e0b; }
+.fbtn.active-green { background: #052e16; color: #86efac; border-color: #22c55e; }
+
+#main { display: flex; flex: 1; overflow: hidden; position: relative; }
+#map { flex: 1; z-index: 1; background: #0f1729; }
+
+#sidebar {
+  width: 0;
+  overflow: hidden;
+  transition: width .3s;
+  background: #16213e;
+  border-left: 1px solid #0f3460;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  position: relative;
+}
+#sidebar.open { width: 290px; }
+
+#sclose { position: absolute; top: 10px; right: 10px; background: #1e293b; border: 1px solid #334155; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; color: #94a3b8; font-size: 16px; display: flex; align-items: center; justify-content: center; z-index: 5; }
+#sclose:hover { background: #334155; }
+
+#sh { padding: 14px 16px 12px; border-bottom: 1px solid #0f3460; }
+#sh h2 { font-size: 15px; font-weight: 600; color: #e2e8f0; margin-bottom: 3px; padding-right: 30px; }
+#sh p { font-size: 11px; color: #94a3b8; }
+#sbadge { display: inline-block; margin-top: 8px; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 999px; }
+#sbadge.red { background: #450a0a; color: #fca5a5; }
+#sbadge.yellow { background: #451a03; color: #fcd34d; }
+#sbadge.green { background: #052e16; color: #86efac; }
+#sbadge.neutral { background: #1e293b; color: #94a3b8; }
+
+#sbody { flex: 1; overflow-y: auto; padding: 12px 14px; }
+.ns-title { font-size: 10px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: .06em; margin: 10px 0 8px; }
+.ni { padding: 9px 11px; background: #1e293b; border: 1px solid #334155; border-radius: 8px; margin-bottom: 6px; cursor: pointer; transition: background .15s; text-decoration: none; display: block; }
+.ni:hover { background: #273549; }
+.ni-src { font-size: 10px; color: #64748b; margin-bottom: 2px; }
+.ni-title { font-size: 12px; color: #cbd5e1; line-height: 1.4; }
+.ni-date { font-size: 10px; color: #475569; margin-top: 4px; }
+
+#legend { position: absolute; bottom: 20px; left: 14px; z-index: 999; background: rgba(22,33,62,.95); border: 1px solid #0f3460; border-radius: 8px; padding: 8px 12px; font-size: 11px; }
+.lr { display: flex; align-items: center; gap: 7px; margin-bottom: 4px; color: #94a3b8; }
+.lr:last-child { margin-bottom: 0; }
+.ld { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+#loader { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000; background: rgba(22,33,62,.95); padding: 14px 22px; border-radius: 10px; border: 1px solid #0f3460; color: #94a3b8; font-size: 13px; }
+#loader.hide { display: none; }
+
+.leaflet-tooltip { background: rgba(22,33,62,.95) !important; border: 1px solid #334155 !important; color: #e2e8f0 !important; font-size: 11px !important; padding: 3px 8px !important; }
+.leaflet-tooltip-top:before { border-top-color: #334155 !important; }

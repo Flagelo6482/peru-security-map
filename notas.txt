@@ -1,0 +1,257 @@
+# Mapa Interactivo de Seguridad — Perú
+## Documento de contexto y continuación del proyecto
+
+> Guardar como `PROYECTO.md` en la raíz del repo. Sirve como prompt para retomar contexto en otro agente de IA o para referencia personal.
+
+---
+
+## 1. Descripción del proyecto
+
+Aplicación de escritorio desarrollada con **Electron + Leaflet.js** que muestra un mapa interactivo del Perú con navegación jerárquica por niveles administrativos (Departamento → Provincia → Distrito) y puntos de incidencia clasificados por nivel de alerta (rojo/amarillo/verde). Cada punto al ser seleccionado abre un panel lateral con noticias vinculadas al lugar.
+
+**Objetivo final:** Instalable `.exe` que funciona 100% offline en cada PC (excepto los tiles del mapa base por ahora).
+
+---
+
+## 2. Stack técnico definido
+
+| Componente | Tecnología | Razón |
+|---|---|---|
+| App escritorio | **Electron** | Empaqueta HTML/JS como `.exe` |
+| Mapa interactivo | **Leaflet.js** (CDN) | GeoJSON nativo, ligero |
+| Mapa base | **CartoDB Dark** (CDN) | Sin clave API, estético |
+| Datos geográficos | **GeoJSON oficial INEI/IGN** | Polígonos reales del Perú |
+| Base de datos local (futuro) | **SQLite** (better-sqlite3) | Puntos de incidencia |
+| Noticias (futuro) | **RSS Parser** | Medios peruanos |
+| Generador instalador | **electron-builder** | Genera el `.exe` |
+
+### Decisiones descartadas
+- ❌ Three.js — innecesario para mapas 2D
+- ❌ Docker — no aplica para app de escritorio local
+- ❌ Servidor centralizado — la app es 100% local
+
+---
+
+## 3. Estado actual del proyecto
+
+### ✅ Completado
+- Repo creado en GitHub: `peru-security-map`
+- Estructura base del proyecto Electron
+- `package.json` configurado con Electron como devDependency
+- `main.js` con configuración de ventana
+- `index.html` con estructura UI (topbar, sidebar, mapa, leyenda)
+- `renderer/styles.css` con tema oscuro completo
+- `renderer/app.js` con:
+  - Inicialización del mapa Leaflet + tiles CartoDB
+  - Carga de los 3 GeoJSON locales (`fs` + `path`)
+  - Renderizado de departamentos
+  - Filtrado y renderizado de provincias por departamento
+  - Filtrado y renderizado de distritos por provincia
+  - Drill-down (clic jerárquico Dept → Prov → Dist)
+  - Breadcrumb de navegación
+  - Panel lateral con noticias de ejemplo
+- 3 archivos GeoJSON descargados desde geogpsperu.com:
+  - `departamentos.geojson` (INEI 2023, simplificado al 10%)
+  - `provincias.geojson` (INEI 2023, simplificado al 10%)
+  - `distritos.geojson` (INEI 2025, simplificado al 5%)
+- Campo nombre verificado: `NOMBDEP`, `NOMBPROV`, `NOMBDIST`
+- Códigos administrativos: `CCDD` (depto), `CCPP` (provincia), `CCDI` (distrito)
+
+### ⏳ Pendiente
+- Verificar que `npm start` arranque sin errores en PC actual
+- Conectar fuentes RSS reales de medios peruanos para noticias
+- Implementar sistema de gestión de puntos de incidencia (rojo/amarillo/verde) con SQLite
+- Crear formulario para agregar/editar puntos de incidencia
+- Implementar carga por niveles de zoom (lazy loading)
+- Generar instalador `.exe` con electron-builder
+- Filtros funcionales (los botones actualmente solo cambian de estilo)
+- Sistema de búsqueda por nombre de distrito
+- Tiles offline (Opción B futura)
+
+---
+
+## 4. Estructura actual del proyecto
+
+```
+peru-security-map/
+├── .git/
+├── .gitignore                  # Excluye node_modules, .env, etc.
+├── LICENSE                     # MIT
+├── README.md
+├── PROYECTO.md                 # Este archivo
+├── package.json                # Lista de dependencias
+├── package-lock.json           # Versiones exactas
+├── node_modules/               # NO se sube a GitHub
+├── main.js                     # Proceso principal Electron
+├── index.html                  # UI principal
+├── renderer/
+│   ├── app.js                  # Lógica del mapa Leaflet + drill-down
+│   └── styles.css              # Tema oscuro
+└── assets/
+    ├── departamentos.geojson   # ~1.5 MB
+    ├── provincias.geojson      # ~3-5 MB
+    └── distritos.geojson       # ~8-15 MB
+```
+
+---
+
+## 5. Comandos para retomar el proyecto en otra PC
+
+### Primera vez (PC local)
+
+```bash
+# 1. Clonar el repo
+git clone https://github.com/Flagelo6482/peru-security-map.git
+cd peru-security-map
+
+# 2. Instalar todas las dependencias (lee package.json automáticamente)
+npm install
+
+# 3. Ejecutar la app
+npm start
+```
+
+### Trabajo continuo
+
+```bash
+# Antes de empezar a trabajar
+git pull
+
+# Después de hacer cambios
+git add .
+git commit -m "Descripción del cambio"
+git push
+```
+
+### Instalar nuevas librerías
+
+```bash
+# Librería para producción (la app la usa al correr)
+npm install nombre-libreria --save
+
+# Librería solo para desarrollo (como electron-builder)
+npm install nombre-libreria --save-dev
+```
+
+---
+
+## 6. Próximas tareas concretas (en orden)
+
+### Fase 1 — Estabilizar lo que ya hay
+1. Verificar que `npm start` abra la ventana sin errores
+2. Confirmar que los 3 niveles (Dept → Prov → Dist) se naveguen correctamente
+3. Confirmar que el breadcrumb funciona para volver a niveles anteriores
+4. Si hay errores, abrir DevTools con `Ctrl+Shift+I` y revisar consola
+
+### Fase 2 — Gestión de puntos de incidencia
+1. Instalar SQLite: `npm install better-sqlite3 --save`
+2. Crear `db/incidents.db` con tabla: `id, lat, lng, type, name, description, district_code`
+3. Crear funciones CRUD en `renderer/db.js`
+4. Renderizar puntos sobre el mapa al cargar
+5. Formulario en el panel lateral para agregar puntos al hacer clic en el mapa
+
+### Fase 3 — Noticias reales
+1. Instalar RSS parser: `npm install rss-parser --save`
+2. Configurar fuentes RSS:
+   - El Comercio: `https://elcomercio.pe/feed/`
+   - La República: `https://larepublica.pe/feed/`
+   - RPP: `https://rpp.pe/feed`
+   - Andina: `https://andina.pe/agencia/rss.aspx`
+3. Filtrar noticias por keywords del nombre del distrito/provincia
+4. Cachear noticias en SQLite para reducir consultas
+
+### Fase 4 — Distribución
+1. Instalar builder: `npm install electron-builder --save-dev`
+2. Configurar `package.json` con sección `build`:
+   ```json
+   "build": {
+     "appId": "com.peru.securitymap",
+     "productName": "Mapa Seguridad Perú",
+     "win": { "target": "nsis" }
+   }
+   ```
+3. Generar instalador: `npx electron-builder --win`
+4. El `.exe` queda en `dist/` listo para distribuir
+
+### Fase 5 — Mejoras opcionales
+- Sistema de búsqueda por nombre de distrito
+- Heatmap de densidad de incidencias
+- Exportar reportes a PDF
+- Tema claro/oscuro toggle
+- Tiles offline (descarga local del mapa base)
+- Estadísticas con gráficos (Chart.js)
+
+---
+
+## 7. Estructura de datos esperada en SQLite (futuro)
+
+```sql
+CREATE TABLE incidents (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  lat REAL NOT NULL,
+  lng REAL NOT NULL,
+  type TEXT NOT NULL,           -- 'red', 'yellow', 'green'
+  name TEXT NOT NULL,
+  description TEXT,
+  ccdd TEXT,                    -- Código departamento
+  ccpp TEXT,                    -- Código provincia
+  ccdi TEXT,                    -- Código distrito
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE news_cache (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  source TEXT NOT NULL,
+  title TEXT NOT NULL,
+  url TEXT NOT NULL,
+  date TEXT,
+  district_name TEXT,
+  fetched_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+---
+
+## 8. Recursos útiles
+
+| Recurso | URL |
+|---|---|
+| Leaflet docs | https://leafletjs.com/reference.html |
+| Electron docs | https://www.electronjs.org/docs/latest/ |
+| electron-builder | https://www.electron.build/ |
+| mapshaper (conversor) | https://mapshaper.org/ |
+| QGIS | https://qgis.org/es/site/ |
+| GeoJSON Perú | https://www.geogpsperu.com/ |
+| INEI oficial | https://ide.inei.gob.pe/ |
+| CartoDB tiles | https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png |
+
+---
+
+## 9. Contexto del desarrollador
+
+- **Ubicación:** Perú
+- **Nivel técnico:** Trabaja en sistemas/IT, maneja SQL Server, VB 6.0, Python, integraciones, automatización
+- **Idioma preferido:** Español
+- **Proyecto paralelo:** App móvil Flutter para monitoreo de cámaras de seguridad con visión computacional (backend Python existente). Este mapa eventualmente podría integrarse como módulo dentro de esa misma app móvil.
+
+---
+
+## 10. Prompt sugerido para retomar con otro agente IA
+
+> "Estoy desarrollando una app de escritorio en **Electron + Leaflet.js** que muestra un mapa interactivo del Perú con drill-down jerárquico (Departamento → Provincia → Distrito) y un panel lateral con noticias. Ya tengo:
+>
+> - Repo en GitHub clonado y `npm install` ejecutado
+> - Los 3 archivos GeoJSON oficiales del INEI/IGN en `assets/` (simplificados con mapshaper)
+> - `main.js`, `index.html`, `renderer/app.js` y `renderer/styles.css` ya creados
+> - Campos nombre verificados: `NOMBDEP`, `NOMBPROV`, `NOMBDIST`
+> - Campos código: `CCDD`, `CCPP`, `CCDI`
+>
+> Estoy en la fase de [X — ej: implementar SQLite para gestión de puntos / conectar RSS de noticias / generar instalador .exe / etc].
+>
+> Necesito ayuda con [tarea específica]."
+
+---
+
+**Última actualización:** Junio 2026
+**Repo:** https://github.com/Flagelo6482/peru-security-map

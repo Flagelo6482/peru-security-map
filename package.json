@@ -1,0 +1,15 @@
+{
+  "name": "peru-security-map",
+  "version": "1.0.0",
+  "description": "Mapa interactivo de seguridad del Perú",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "keywords": ["electron", "leaflet", "peru", "mapa", "seguridad"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^42.5.0"
+  }
+}

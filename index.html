@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.basemaps.cartocdn.com https://cdnjs.cloudflare.com data:;">
+  <title>Mapa de Seguridad — Perú</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+  <link rel="stylesheet" href="renderer/styles.css">
+</head>
+<body>
+  <div id="topbar">
+    <h1>🗺️ Mapa de Seguridad — Perú</h1>
+    <div id="breadcrumb">
+      <span class="bc-item active" data-level="dep">Perú</span>
+    </div>
+    <div id="filters">
+      <button class="fbtn active-all" data-type="all">Todos</button>
+      <button class="fbtn" data-type="red">🔴 Emergencia</button>
+      <button class="fbtn" data-type="yellow">🟡 Moderado</button>
+      <button class="fbtn" data-type="green">🟢 Seguro</button>
+    </div>
+  </div>
+
+  <div id="main">
+    <div id="map"></div>
+    <div id="sidebar">
+      <button id="sclose">×</button>
+      <div id="sh">
+        <h2 id="stitle">—</h2>
+        <p id="sdesc">—</p>
+        <span id="sbadge" class="neutral">—</span>
+      </div>
+      <div id="sbody"></div>
+    </div>
+  </div>
+
+  <div id="legend">
+    <div class="lr"><div class="ld" style="background:#ef4444"></div>Zona emergencia</div>
+    <div class="lr"><div class="ld" style="background:#f59e0b"></div>Actividad moderada</div>
+    <div class="lr"><div class="ld" style="background:#22c55e"></div>Zona segura</div>
+  </div>
+
+  <div id="loader">Cargando mapa...</div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <script src="renderer/app.js"></script>
+</body>
+</html>

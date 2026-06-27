@@ -141,3 +141,71 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+
+
+
+
+# ============================
+# Electron específico
+# ============================
+
+# Salida de electron-builder
+release/
+out/
+build-output/
+
+# Instaladores generados
+*.exe
+*.dmg
+*.deb
+*.AppImage
+*.snap
+*.zip
+
+# Caché de electron
+.electron/
+.electron-builder/
+
+# ============================
+# Sistema operativo
+# ============================
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux
+*~
+.Trash-*
+
+# ============================
+# Editores
+# ============================
+
+# VS Code (mantener algunos archivos del workspace si quieres)
+.vscode/*
+!.vscode/settings.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# JetBrains IDEs
+.idea/
+*.iml
+
+# ============================
+# Archivos temporales del proyecto
+# ============================
+
+# Base de datos local (si manejas datos sensibles localmente)
+# db/incidents.db    ← descomenta si NO quieres subir la BD
+
+# Archivos personales o de prueba
+notas-personales.md
+TODO-privado.md
