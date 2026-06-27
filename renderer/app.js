@@ -5,11 +5,11 @@ const map = L.map('map', {
   zoomControl: true,
   attributionControl: false,
   minZoom: 5,
-  maxZoom: 14
+  maxZoom: 19
 }).setView([-9.19, -75.015], 6)
 
-L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-  maxZoom: 18,
+let tileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  maxZoom: 19,
   subdomains: 'abcd'
 }).addTo(map)
 
@@ -21,6 +21,9 @@ let layerProv = null
 let layerDist = null
 let selectedDep = null    // CCDD del departamento seleccionado
 let selectedProv = null   // CCPP de la provincia seleccionada
+let darkMode = true
+let layersVisible = true
+let hoverEnabled = true
 
 const fs = require('fs')
 const path = require('path')
@@ -34,6 +37,9 @@ const styleProv = { color: '#475569', weight: 0.8, fillColor: '#1e3a5f', fillOpa
 const styleProvHover = { fillColor: '#3b82f6', fillOpacity: 0.7 }
 const styleDist = { color: '#64748b', weight: 0.5, fillColor: '#1e3a5f', fillOpacity: 0.4 }
 const styleDistHover = { fillColor: '#60a5fa', fillOpacity: 0.65 }
+const styleDepLight = { color: '#94a3b8', weight: 1, fillColor: '#bfdbfe', fillOpacity: 0.5 }
+const styleProvLight = { color: '#94a3b8', weight: 0.8, fillColor: '#bfdbfe', fillOpacity: 0.4 }
+const styleDistLight = { color: '#94a3b8', weight: 0.5, fillColor: '#bfdbfe', fillOpacity: 0.35 }
 
 // ============================
 // Cargar GeoJSON local
@@ -69,8 +75,8 @@ function showDepartments() {
       const name = feat.properties.NOMBDEP
       layer.bindTooltip(name, { sticky: true })
 
-      layer.on('mouseover', () => layer.setStyle(styleDepHover))
-      layer.on('mouseout', () => layer.setStyle(styleDep))
+      layer.on('mouseover', () => { if (layersVisible && hoverEnabled) layer.setStyle(styleDepHover) })
+      layer.on('mouseout', () => { if (layersVisible) layer.setStyle(darkMode ? styleDep : styleDepLight) })
       layer.on('click', () => {
         selectedDep = feat.properties.CCDD
         map.fitBounds(layer.getBounds(), { padding: [40, 40] })
@@ -104,8 +110,8 @@ function showProvinces(ccdd, depName) {
       const name = feat.properties.NOMBPROV || feat.properties.NOMBRE
       layer.bindTooltip(name, { sticky: true })
 
-      layer.on('mouseover', () => layer.setStyle(styleProvHover))
-      layer.on('mouseout', () => layer.setStyle(styleProv))
+      layer.on('mouseover', () => { if (layersVisible && hoverEnabled) layer.setStyle(styleProvHover) })
+      layer.on('mouseout', () => { if (layersVisible) layer.setStyle(darkMode ? styleProv : styleProvLight) })
       layer.on('click', () => {
         selectedProv = feat.properties.CCPP
         map.fitBounds(layer.getBounds(), { padding: [40, 40] })
@@ -139,8 +145,8 @@ function showDistricts(ccdd, ccpp, provName, depName) {
       const name = feat.properties.NOMBDIST || feat.properties.NOMBRE
       layer.bindTooltip(name, { sticky: true })
 
-      layer.on('mouseover', () => layer.setStyle(styleDistHover))
-      layer.on('mouseout', () => layer.setStyle(styleDist))
+      layer.on('mouseover', () => { if (layersVisible && hoverEnabled) layer.setStyle(styleDistHover) })
+      layer.on('mouseout', () => { if (layersVisible) layer.setStyle(darkMode ? styleDist : styleDistLight) })
       layer.on('click', () => {
         openPanel(name, `${provName}, ${depName}`, 'yellow', null, true)
         updateBreadcrumb([
@@ -263,3 +269,59 @@ document.querySelectorAll('.fbtn').forEach(btn => {
 // ============================
 showDepartments()
 document.getElementById('loader').classList.add('hide')
+
+// ============================
+// Activar / desactivar resaltado hover
+// ============================
+document.getElementById('hover-toggle').onclick = () => {
+  hoverEnabled = !hoverEnabled
+  const btn = document.getElementById('hover-toggle')
+  btn.classList.toggle('hover-off', !hoverEnabled)
+  btn.title = hoverEnabled ? 'Desactivar resaltado' : 'Activar resaltado'
+
+  if (!hoverEnabled) {
+    if (layerDep) layerDep.setStyle(darkMode ? styleDep : styleDepLight)
+    if (layerProv) layerProv.setStyle(darkMode ? styleProv : styleProvLight)
+    if (layerDist) layerDist.setStyle(darkMode ? styleDist : styleDistLight)
+  }
+}
+
+// ============================
+// Mostrar / ocultar capas
+// ============================
+document.getElementById('layer-toggle').onclick = () => {
+  layersVisible = !layersVisible
+  const btn = document.getElementById('layer-toggle')
+  btn.classList.toggle('layer-off', !layersVisible)
+  btn.title = layersVisible ? 'Ocultar zonas' : 'Mostrar zonas'
+
+  if (layersVisible) {
+    if (layerDep) layerDep.setStyle(darkMode ? styleDep : styleDepLight)
+    if (layerProv) layerProv.setStyle(darkMode ? styleProv : styleProvLight)
+    if (layerDist) layerDist.setStyle(darkMode ? styleDist : styleDistLight)
+  } else {
+    const hidden = { opacity: 0, fillOpacity: 0 }
+    if (layerDep) layerDep.setStyle(hidden)
+    if (layerProv) layerProv.setStyle(hidden)
+    if (layerDist) layerDist.setStyle(hidden)
+  }
+}
+
+// ============================
+// Modo oscuro / claro
+// ============================
+document.getElementById('theme-toggle').onclick = () => {
+  darkMode = !darkMode
+  document.body.classList.toggle('light', !darkMode)
+  document.getElementById('theme-toggle').textContent = darkMode ? '🌙' : '☀️'
+
+  map.removeLayer(tileLayer)
+  const url = darkMode
+    ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+    : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
+  tileLayer = L.tileLayer(url, { maxZoom: 19, subdomains: 'abcd' }).addTo(map)
+
+  if (layerDep) layerDep.setStyle(darkMode ? styleDep : styleDepLight)
+  if (layerProv) layerProv.setStyle(darkMode ? styleProv : styleProvLight)
+  if (layerDist) layerDist.setStyle(darkMode ? styleDist : styleDistLight)
+}
