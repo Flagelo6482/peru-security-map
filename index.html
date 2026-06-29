@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.basemaps.cartocdn.com https://cdnjs.cloudflare.com data:;">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.basemaps.cartocdn.com https://cdnjs.cloudflare.com https://overpass-api.de https://*.tile.openstreetmap.org https://*.google.com data:;">
   <title>Mapa de Seguridad — Perú</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
   <link rel="stylesheet" href="renderer/styles.css">
@@ -14,13 +14,39 @@
       <span class="bc-item active" data-level="dep">Perú</span>
     </div>
     <div id="filters">
-      <button class="fbtn active-all" data-type="all">Todos</button>
-      <button class="fbtn" data-type="red">🔴 Emergencia</button>
-      <button class="fbtn" data-type="yellow">🟡 Moderado</button>
-      <button class="fbtn" data-type="green">🟢 Seguro</button>
+      <select id="alert-filter-select" class="fselect" title="Filtrar por nivel de alerta">
+        <option value="all">Filtro Alerta: Todos</option>
+        <option value="emergency">🔴 Emergencia (Crítico)</option>
+        <option value="moderated">🟡 Moderado</option>
+        <option value="safe">🟢 Seguro</option>
+      </select>
+    </div>
+    <div id="poi-filters">
+      <select id="poi-category-select" style="background: #1e293b; color: #cbd5e1; border: 1px solid #334155; border-radius: 6px; padding: 6px 12px; font-size: 12px; outline: none; cursor: pointer; transition: all 0.2s;" title="Filtrar lugares de interés (Atajo: T)">
+        <option value="none">🔍 Ocultar Lugares de Interés</option>
+        <option value="all">✨ Todos los Lugares</option>
+        <option value="police">👮 Comisarías / PNP</option>
+        <option value="hospital">🏥 Hospitales / Salud</option>
+        <option value="school">🏫 Colegios / Educación</option>
+        <option value="hotel">🏨 Hoteles / Hospedaje</option>
+        <option value="restaurant">🍴 Restaurantes / Cafés</option>
+      </select>
+    </div>
+    <div id="search-container">
+      <select id="search-scope">
+        <option value="dist">Distrito</option>
+        <option value="prov">Provincia</option>
+        <option value="dep">Departamento</option>
+      </select>
+      <div id="search-input-wrapper">
+        <input type="text" id="search-input" placeholder="Buscar distrito..." autocomplete="off">
+        <div id="search-suggestions" class="hide"></div>
+      </div>
     </div>
     <button id="hover-toggle" title="Desactivar resaltado">✦ Resaltado</button>
+    <button id="fill-toggle" title="Desactivar sombreado">🎨 Sombreado</button>
     <button id="layer-toggle" title="Ocultar zonas">👁 Zonas</button>
+    <button id="settings-toggle" title="Configurar Google Maps">⚙️</button>
     <button id="theme-toggle" title="Cambiar tema">🌙</button>
   </div>
 
@@ -41,6 +67,25 @@
     <div class="lr"><div class="ld" style="background:#ef4444"></div>Zona emergencia</div>
     <div class="lr"><div class="ld" style="background:#f59e0b"></div>Actividad moderada</div>
     <div class="lr"><div class="ld" style="background:#22c55e"></div>Zona segura</div>
+  </div>
+
+  <!-- Modal de Configuración -->
+  <div id="settings-modal" class="modal-overlay hide">
+    <div class="modal-content">
+      <button id="settings-close" class="modal-close">×</button>
+      <h3>⚙️ Configuración de Google Maps</h3>
+      <p class="modal-text">
+        Ingresa tu API Key de Google Maps para habilitar la descarga e interacción de colegios, restaurantes y puntos actualizados en tiempo real.
+      </p>
+      <div class="form-group" style="margin-bottom: 16px;">
+        <label for="google-api-key" style="display: block; font-size: 11px; color: #94a3b8; margin-bottom: 6px; font-weight: 600;">Google Maps API Key</label>
+        <input type="password" id="google-api-key" placeholder="AIzaSy..." style="width: 100%; padding: 8px 12px; background: #0f172a; border: 1px solid #334155; border-radius: 4px; color: #cbd5e1; font-size: 12px;" autocomplete="off">
+      </div>
+      <div style="display: flex; gap: 8px; justify-content: flex-end;">
+        <button id="btn-save-settings" style="background: #2563eb; color: #fff; border: none; padding: 8px 16px; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer;">Guardar</button>
+        <button id="btn-clear-settings" style="background: #450a0a; color: #fca5a5; border: 1px solid #7f1d1d; padding: 8px 12px; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer;">Eliminar Clave</button>
+      </div>
+    </div>
   </div>
 
   <div id="loader">Cargando mapa...</div>

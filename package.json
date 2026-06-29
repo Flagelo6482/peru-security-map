@@ -6,10 +6,20 @@
   "scripts": {
     "start": "electron ."
   },
-  "keywords": ["electron", "leaflet", "peru", "mapa", "seguridad"],
+  "keywords": [
+    "electron",
+    "leaflet",
+    "peru",
+    "mapa",
+    "seguridad"
+  ],
   "author": "",
   "license": "MIT",
   "devDependencies": {
+    "@electron/rebuild": "^4.0.6",
     "electron": "^42.5.0"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.11.1"
   }
 }

@@ -42,7 +42,7 @@ Aplicación de escritorio desarrollada con **Electron + Leaflet.js** que muestra
 - `index.html` con estructura UI (topbar, sidebar, mapa, leyenda)
 - `renderer/styles.css` con tema oscuro completo
 - `renderer/app.js` con:
-  - Inicialización del mapa Leaflet + tiles CartoDB
+  - Inicialización del mapa Leaflet
   - Carga de los 3 GeoJSON locales (`fs` + `path`)
   - Renderizado de departamentos
   - Filtrado y renderizado de provincias por departamento
@@ -56,16 +56,21 @@ Aplicación de escritorio desarrollada con **Electron + Leaflet.js** que muestra
   - `distritos.geojson` (INEI 2025, simplificado al 5%)
 - Campo nombre verificado: `NOMBDEP`, `NOMBPROV`, `NOMBDIST`
 - Códigos administrativos: `CCDD` (depto), `CCPP` (provincia), `CCDI` (distrito)
+- **Instalación y configuración de Node.js y npm locales** en la PC.
+- **Mapa base de OpenStreetMap detallado** en ambos modos (Claro y Oscuro por filtros CSS).
+- **Puntos de interés (POIs) locales:** Descargados y compactados 109,400 puntos detallados (comisarías, hospitales, colegios, hoteles y restaurantes) de todo el Perú mediante una descarga particionada por región.
+- **Carga offline de POIs:** Búsqueda e iconos dinámicos con atajos de teclado (`S` para sombreado, `T` para mostrar todos).
+- **Sistema de búsqueda por ámbito y autocompletado:** Buscador jerárquico integrado en el topbar (Departamento, Provincia, Distrito) con desplazamiento de cámara (`flyToBounds`), resaltado activo y tolerancia a acentos.
+- **Carga optimizada asíncrona (Lazy Loading):** Los archivos geográficos pesados de provincias y distritos se cargan bajo demanda en segundo plano (asíncronamente) y con pre-carga en el buscador.
+- **Sistema de gestión de incidencias con SQLite:** Base de datos local autogestionada `peru_security.db`. Almacenamiento, consulta, edición de estado (Pendiente/Resuelto) y borrado de incidencias de seguridad a través de IPC.
+- **Formulario e interacción en mapa:** Clic derecho en el mapa para reportar incidentes detectando el UBIGEO por Ray-Casting. Formulario flotante en barra lateral y balizas de colores según severidad.
+- **Filtros funcionales superiores:** Selector desplegable de severidad en el topbar que filtra los marcadores y actualiza el sombreado dinámico de los distritos por riesgo (rojo, amarillo, verde o azul neutro si está vacío).
+- **Fondo de Google Maps oficial:** Conectado el mapa base a las imágenes de Google Maps (`hl=es`), integrado con el filtro de tema oscuro CSS y resolviendo restricciones de políticas CSP.
+- **Integración híbrida de Google Places API:** Implementado el código de consulta live a Google Places, con caché en SQLite para evitar consultas repetidas y panel de configuración de API Key (engranaje), cayendo automáticamente en el fallback de OSM local si la clave no está ingresada.
+- **Conexión de Noticias RSS Reales y Clasificación:** Creado un agregador en el Main Process que descarga feeds RSS peruanos (RPP, La República Regionales, Andina, Exitosa), filtra geográficamente por distrito/provincia, clasifica automáticamente por tipo de delito/incidente (delincuencia, homicidio, minería ilegal, deforestación, trata de personas, etc.) y los guarda por 12 horas en la caché de SQLite.
 
 ### ⏳ Pendiente
-- Verificar que `npm start` arranque sin errores en PC actual
-- Conectar fuentes RSS reales de medios peruanos para noticias
-- Implementar sistema de gestión de puntos de incidencia (rojo/amarillo/verde) con SQLite
-- Crear formulario para agregar/editar puntos de incidencia
-- Implementar carga por niveles de zoom (lazy loading)
 - Generar instalador `.exe` con electron-builder
-- Filtros funcionales (los botones actualmente solo cambian de estilo)
-- Sistema de búsqueda por nombre de distrito
 - Tiles offline (Opción B futura)
 
 ---
@@ -250,6 +255,16 @@ CREATE TABLE news_cache (
 > Estoy en la fase de [X — ej: implementar SQLite para gestión de puntos / conectar RSS de noticias / generar instalador .exe / etc].
 >
 > Necesito ayuda con [tarea específica]."
+
+---
+
+## 11. Atajos de Teclado y Controles Rápidos
+
+- `S` (Teclado): Activa / Desactiva el sombreado territorial (color de riesgo) de los distritos.
+- `T` (Teclado): Muestra todos los Lugares de Interés ("Todos") o los oculta por completo ("Ocultar").
+- `Esc` (Teclado): Limpia la navegación por completo (restablece campos de búsqueda, cierra paneles de detalles y quita el resalte del mapa sin perder el zoom ni la capa actual).
+- **Clic Derecho** (Mapa): Abre el formulario flotante de reporte de incidencias para las coordenadas seleccionadas (autodetectando el distrito y UBIGEO).
+- **Clic Izquierdo Libre** (Mapa): Selecciona, vuela la cámara y destaca libremente cualquier distrito de todo el Perú, cargando sus noticias al instante en la barra lateral sin restricciones.
 
 ---
 
